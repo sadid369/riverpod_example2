@@ -25,7 +25,6 @@ extension OptionalInfixAddition<T extends num> on T? {
 class Counter extends StateNotifier<int?> {
   Counter() : super(null);
   void increment() => state = state == null ? 1 : state + 1;
-  int? get value => state;
 }
 
 final counterProvider = StateNotifierProvider<Counter, int?>(
@@ -52,11 +51,40 @@ class HomePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final val = ref.watch(counterProvider);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Home Page'),
+        title: Consumer(
+            builder: (context, ref, child) {
+              final count = ref.watch(counterProvider);
+              final text =
+                  count == null ? 'Press the Button ' : count.toString();
+              return Text(text);
+            },
+            child: const Text('Home Page')),
       ),
-      body: Container(),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          TextButton(
+            onPressed: () {
+              ref.read(counterProvider.notifier).increment();
+            },
+            child: const Text(
+              "Increment Counter",
+            ),
+          ),
+          const SizedBox(
+            height: 200,
+          ),
+          Text(
+            "${val}",
+            style: const TextStyle(
+              fontSize: 200,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
